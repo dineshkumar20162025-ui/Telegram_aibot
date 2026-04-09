@@ -4,14 +4,13 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 
 BOT_TOKEN = "8721157106:AAFudCgf3l8_93ortZKgz7q1EWUknZlzl2o"
 
-# Store user video
 user_videos = {}
 
-# Start command
+# START
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Send me a video 🎥")
+    await update.message.reply_text("Send a video 🎥")
 
-# Save video
+# SAVE VIDEO
 async def save_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file = await update.message.video.get_file()
     path = f"{update.message.from_user.id}.mp4"
@@ -19,13 +18,13 @@ async def save_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_videos[update.message.from_user.id] = path
 
-    await update.message.reply_text("Video saved ✅\nNow send: /480 or /720 or /1080")
+    await update.message.reply_text("Video saved ✅\nUse /480 /720 /1080")
 
-# Change resolution
+# CHANGE RESOLUTION
 def change_resolution(input_file, output_file, res):
     os.system(f"ffmpeg -i {input_file} -vf scale=-2:{res} {output_file}")
 
-# Process resolution
+# PROCESS COMMAND
 async def process_resolution(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
 
