@@ -1,51 +1,54 @@
-
 import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
 BOT_TOKEN = "8721157106:AAFudCgf3l8_93ortZKgz7q1EWUknZlzl2o"
 
-# START
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "Send a video and choose resolution:\n/480p /720p /1080p"
-    )
+# Store user video
+user_videos = {}
 
-# SAVE VIDEO
+# Start command
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Send me a video 🎥")
+
+# Save video
 async def save_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file = await update.message.video.get_file()
-    file_path = f"input.mp4"
-    await file.download_to_drive(file_path)
+    path = f"{update.message.from_user.id}.mp4"
+    await file.download_to_drive(path)
 
-    context.user_data["video"] = file_path
-    await update.message.reply_text("✅ Video saved. Now choose resolution.")
+    user_videos[update.message.from_user.id] = path
 
-# CHANGE RESOLUTION
+    await update.message.reply_text("Video saved ✅\nNow send: /480 or /720 or /1080")
+
+# Change resolution
 def change_resolution(input_file, output_file, res):
     os.system(f"ffmpeg -i {input_file} -vf scale=-2:{res} {output_file}")
 
-# PROCESS COMMAND
-async def process(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if "video" not in context.user_data:
-        await update.message.reply_text("❌ Send video first")
+# Process resolution
+async def process_resolution(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.message.from_user.id
+
+    if user_id not in user_videos:
+        await update.message.reply_text("Send video first ❌")
         return
 
     res = update.message.text.replace("/", "")
-    input_file = context.user_data["video"]
+    input_file = user_videos[user_id]
     output_file = f"output_{res}.mp4"
 
-    await update.message.reply_text("⏳ Processing...")
+    await update.message.reply_text("Processing... ⏳")
 
     change_resolution(input_file, output_file, res)
 
     with open(output_file, "rb") as vid:
-        await update.message.reply_video(video=vid)
+        await update.message.reply_video(vid)
 
 # MAIN
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler(["480p", "720p", "1080p"], process))
+app.add_handler(CommandHandler(["480", "720", "1080"], process_resolution))
 app.add_handler(MessageHandler(filters.VIDEO, save_video))
 
 app.run_polling()
