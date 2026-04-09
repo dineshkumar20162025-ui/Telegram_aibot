@@ -2,11 +2,11 @@ import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
-BOT_TOKEN = os.getenv("8721157106:AAFudCgf3l8_93ortZKgz7q1EWUknZlzl2o")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 user_videos = {}
 
-# START
+# START COMMAND
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Send a video 🎥")
 
@@ -23,7 +23,7 @@ async def save_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def change_resolution(input_file, output_file, res):
     os.system(f"ffmpeg -i {input_file} -vf scale=-2:{res} {output_file}")
 
-# PROCESS
+# PROCESS RESOLUTION
 async def process_resolution(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
 
@@ -49,4 +49,5 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler(["480", "720", "1080"], process_resolution))
 app.add_handler(MessageHandler(filters.VIDEO, save_video))
 
+print("Bot is running...")
 app.run_polling()
