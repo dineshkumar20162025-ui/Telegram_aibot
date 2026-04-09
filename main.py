@@ -23,7 +23,7 @@ async def save_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def change_resolution(input_file, output_file, res):
     os.system(f"ffmpeg -i {input_file} -vf scale=-2:{res} {output_file}")
 
-# PROCESS COMMAND
+# PROCESS
 async def process_resolution(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
 
