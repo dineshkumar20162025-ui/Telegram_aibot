@@ -17,7 +17,6 @@ async def save_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await file.download_to_drive(path)
 
     user_videos[update.message.from_user.id] = path
-
     await update.message.reply_text("Video saved ✅\nUse /480 /720 /1080")
 
 # CHANGE RESOLUTION
